@@ -28,7 +28,7 @@ letters.prototype.rand = function(length, opts){
 
 letters.prototype.translate = function(index){
   if(index >= this.items.length){
-    index = index - this.items.length;
+    index =  index % this.items.length;
   }
   if(index < 0){
     index = index + this.items.length;

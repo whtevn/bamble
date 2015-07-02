@@ -35,38 +35,39 @@ function decode(message, signature){
   var letters = [];
   while(letters.length < msg.length / signature.letter_width){
     letters.push(
-      value_of(msg.substr(signature.letter_width*letters.length, signature.letter_width), signature)
+      value_of(msg.substr(signature.letter_width*letters.length, signature.letter_width), signature, letters.length)
     );
   }
   return letters.join(''); 
 }
 
-function value_of(msg, sig){
+function value_of(msg, sig, internal_offset){
   var relevant_character = msg.charAt(sig.relevant_character);
-  return Letters.translate(Letters.indexOf(relevant_character)-sig.offset)
+  return Letters.translate(Letters.indexOf(relevant_character)-sig.offset - internal_offset)
 }
 
 function obscure(message, signature){
   var result = '';
+  var item;
   var loc;
   for(letter in message){
+    item = '';
     // find the location of this letter in the shared alphabet
     loc = Letters.indexOf(message[letter]); 
     // offset the letter by the translation in the config
-    loc = loc+signature.offset
+    loc = loc+signature.offset+parseInt(letter);
     // find the letter that corresponds to the offset
     loc = Letters.translate(loc);
 
     // pad the letter with noise if desired
     if(signature.letter_width>1){
-      letter = Letters.rand(signature.letter_width-1);
+      item = Letters.rand(signature.letter_width-1);
     }
 
     // add the translated letter to the result
-    result += letter.slice(0, signature.relevant_character) +
+    result += item.slice(0, signature.relevant_character) +
       loc +
-      letter.slice(signature.relevant_character);
-
+      item.slice(signature.relevant_character);
   }
 
   // return the result
