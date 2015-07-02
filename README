@@ -1,0 +1,17 @@
+scramble a message
+
+clone this project
+
+copy the `config.json.sample` to `config.json`
+
+$ var Key = require('./key')
+
+$ var newKey = new Key();
+
+$ var secret = newKey.secret; // this is what you would give to someone so they could read your message
+
+$ var message = Key.sign('this is a message') // this will output a message
+
+$ var key2 = Key.FromSecret(secret)
+
+$ key2.decode(message) //=> returns 'this is a message'
