@@ -12,6 +12,8 @@ copy the `config.json.sample` to `config.json`
 
     $ var message = Key.sign('this is a message') // this will output a message
 
-    $ var key2 = Key.FromSecret(secret)
+    $ var key2 = new Key(secret)
 
-    $ key2.decode(message) //=> returns 'this is a message'
+    $ key2.read(message) //=> returns 'this is a message'
+
+both users config.json files must match for messages to be transferred properly

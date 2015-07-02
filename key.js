@@ -4,10 +4,18 @@ var opts = require('./config');
 
 Letters  = new Letters(opts.letters);
 
-var key = function(){
-  this.numbers = Letters.rand(10, {unique: true});
-  this.tail    = Letters.rand(opts.tail_length, {exclude: this.numbers});
-  this.secret  = this.numbers+this.tail;
+var key = function(secret){
+  if(secret){
+    secret = read_secret(secret);
+
+    this.tail    = secret.tail;
+    this.numbers = secret.numbers;
+    this.secret  = secret.secret;
+  }else{
+    this.numbers = Letters.rand(10, {unique: true});
+    this.tail    = Letters.rand(opts.tail_length, {exclude: this.numbers});
+    this.secret  = this.numbers+this.tail;
+  }
   this.letters = Letters;
 }
 
@@ -16,14 +24,14 @@ key.prototype.sign = function(message){
   return signature.string+obscure(message, signature)
 }
 
-key.prototype.decode = function(str){
+key.prototype.read = function(str){
   var signature = new Signature(this);
   signature.read(str);
   return decode(str, signature);
 }
 
-key.FromSecret = function(secret){
-  var key = new Key();
+function read_secret(secret){
+  var key = {}
   key.numbers = secret.substr(0, 10);
   key.tail = secret.substr(10, secret.length);
   key.secret = secret;
