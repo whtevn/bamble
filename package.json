@@ -1,5 +1,5 @@
 {
-  "name": "scrabamble",
+  "name": "bamble",
   "version": "0.0.1",
   "description": "one time pad management and encryption/decription library",
   "main": "lib/key.js",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/whtevn/scrabamble.git"
+    "url": "https://github.com/whtevn/bamble.git"
   },
   "keywords": [
     "spy",
@@ -21,9 +21,9 @@
   "author": "Evan Short",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/whtevn/scrabamble/issues"
+    "url": "https://github.com/whtevn/bamble/issues"
   },
-  "homepage": "https://github.com/whtevn/scrabamble",
+  "homepage": "https://github.com/whtevn/bamble",
   "dependencies": {
     "q": "^1.4.1",
     "q-io": "^1.13.1",
