@@ -32,9 +32,9 @@ there are more options described in the help section of the app and each of its 
 
     $ bamble -h
 
-    $ bamlble say -h 
+    $ bamble say -h 
 
-    $ bamlble read -h 
+    $ bamble read -h 
 
 and so on
 
