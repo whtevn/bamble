@@ -17,3 +17,19 @@ copy the `config.json.sample` to `config.json`
     $ key2.read(message) //=> returns 'this is a message'
 
 both users config.json files must match for messages to be transferred properly
+
+-------------
+
+sudo npm install scrabamble -g
+
+generate a 25 entry pad
+
+    $ bamble generate -n 25 -t book1
+
+generate a message from that pad
+
+    $ cat filename.txt | bamble say --use book1
+
+read a message from that pad
+
+    $ cat filename.bambled.book1.msg1 | bamble read > filename.txt

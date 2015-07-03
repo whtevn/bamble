@@ -1,0 +1,144 @@
+#!/usr/bin/env node
+
+var Key = require('../lib/key');
+var Letters = require('../lib/letters');
+var qfs = require('q-io/fs');
+var fs = require('fs');
+var Q  = require('q');
+
+
+var args = require('yargs')
+  , argv      = args.argv;
+
+switch(argv._[0]){
+  case 'prep':
+  case 'prepare':
+    argv = args
+      .usage('Usage: $0 prep|prepare [options]')
+      .example('$0 prepare -n 100 -t book1', 'prepare a one time pad for 100 messages titled "book1"')
+      .alias('n', 'num')
+      .default('n', '25')
+      .describe('n', 'number of secrets to generate in this pad')
+      .alias('b', 'book')
+      .describe('b', 'the title of the book of codes. will be used in file naming to let scrabamble know how to read messages. If no title is given, output will proceed to stdout')
+      .alias('z', 'noise')
+      .default('z', '1')
+      .describe('z', 'width of a single character. 1 is the smallest option')
+      .alias('r', 'relevant-character')
+      .default('r', '1')
+      .describe('r', 'describes the important character within letter noise. must be less than or equal to the noise parameter')
+      .help('h')
+      .alias('h', 'help')
+      .argv;
+
+    var letters =  Letters.shuffle("\nabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890`~!@#$%^&*()-_=+[{]}\\|;:'\"/?.>,<");
+    Key.config =  {
+      letters: letters
+    , tail_length: argv.l
+    , letter_width: argv.z
+    , relevant_character: argv.r
+    };
+
+    var pad = [];
+    var output_pipe = process.stdout;
+    for(var i=0; i<parseInt(argv.n); i++){
+      pad.push(new Key(null, config).secret);
+    }
+
+    var deferred = Q.defer();
+    if(argv.b){
+      qfs.makeTree(process.cwd()+'/books/')
+        .then(function(){
+          var book = fs.createWriteStream(process.cwd()+'/books/'+argv.b, {flags: 'a'});
+          output_pipe = book;
+          deferred.resolve();
+        })
+        .catch(function(err){
+          deferred.reject(err);
+        })
+    }else{
+      deferred.resolve();
+    }
+
+    deferred.promise.then(function(){
+      output_pipe.write(JSON.stringify(
+        {
+          config: Key.config
+        , pad: pad
+        }
+      ), null, "\t");
+    })
+    .catch(function(err){
+      process.stderr.write(err);
+      process.exit(1);
+    })
+    break;
+  case 'read':
+    argv = args
+      .usage('Usage: cat filename | $0 say [options]')
+      .example('cat filename | $0 read -b book1', 'make a message to be readable by owners of book1')
+      .example('echo "cq~".;;Yc" | $0 read -b book1', 'make a message to be readable by owners of book1')
+      .alias('b', 'book')
+      .demand('book', 'you must say which book is being read from')
+      .describe('b', 'the title of the book of codes. will determine where the next shared secret comes from')
+      .help('h')
+      .alias('h', 'help')
+      .argv;
+
+    var book_loc = process.cwd()+'/books/'+argv.b;
+    qfs.isFile(book_loc)
+      .then(function(is_file){
+        if(!is_file) throw(new Error("No such book"));
+        return qfs.read(book_loc)
+      })
+      .then(function(settings){
+        settings = JSON.parse(settings);
+        process.stdin.setEncoding('utf8');
+        process.stdin.on('data', function(chunk) {
+          var key = new Key(settings.pad.shift(), settings.config);
+          process.stdout.write(key.read(chunk));
+        });
+      });
+    break;
+  case 'say':
+    argv = args
+      .usage('Usage: cat filename | $0 say [options]')
+      .example('cat filename | $0 say -b book1', 'make a message to be readable by owners of book1')
+      .alias('b', 'book')
+      .demand('book', 'you must say which book is being read from')
+      .describe('b', 'the title of the book of codes. will determine where the next shared secret comes from')
+      .help('h')
+      .alias('h', 'help')
+      .argv;
+
+    var book_loc = process.cwd()+'/books/'+argv.b;
+    qfs.isFile(book_loc)
+      .then(function(is_file){
+        if(!is_file) throw(new Error("No such book"));
+        return qfs.read(book_loc)
+      })
+      .then(function(settings){
+        settings = JSON.parse(settings);
+        process.stdin.setEncoding('utf8');
+        process.stdin.on('data', function(chunk) {
+          var key = new Key(settings.pad.shift(), settings.config);
+          process.stdout.write(key.sign(chunk));
+        });
+      });
+    break;
+  case "import":
+    break;
+  case undefined:
+    argv = args
+      .usage("$0 [ prepare | say | read ] ")
+      .example("$0 <command> -h", "get help for any of the sub commands")
+      .command('prepare', 'prepare a one time pad for future secure communication')
+      .command('import', 'install a book prepared by someone else')
+      .command('say', 'generate a message using an already generated one time pad')
+      .command('read', 'read a message with an already generated one time pad')
+      .help('h')
+      .alias('h', 'help')
+      .argv
+    break;
+}
+
