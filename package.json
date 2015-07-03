@@ -1,6 +1,6 @@
 {
   "name": "bamble",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "one time pad management and encryption/decription library",
   "main": "lib/key.js",
   "scripts": {
