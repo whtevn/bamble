@@ -80,26 +80,41 @@ switch(argv._[0]){
       .example('cat filename | $0 read -b book1', 'make a message to be readable by owners of book1')
       .example('echo "cq~".;;Yc" | $0 read -b book1', 'make a message to be readable by owners of book1')
       .alias('b', 'book')
-      .demand('book', 'you must say which book is being read from')
       .describe('b', 'the title of the book of codes. will determine where the next shared secret comes from')
       .help('h')
       .alias('h', 'help')
       .argv;
 
-    var book_loc = process.cwd()+'/books/'+argv.b;
-    qfs.isFile(book_loc)
-      .then(function(is_file){
-        if(!is_file) throw(new Error("No such book"));
-        return qfs.read(book_loc)
-      })
-      .then(function(settings){
-        settings = JSON.parse(settings);
-        process.stdin.setEncoding('utf8');
-        process.stdin.on('data', function(chunk) {
+    
+    var deferred = Q.defer();
+    process.stdin.setEncoding('utf8');
+    process.stdin.on('data', function(chunk) {
+      deferred.resolve(chunk)
+    });
+
+    deferred.promise.then(function(chunk){
+      var match = chunk.match(/^(.*) --#(.*)$/);
+      var book = argv.b;
+      if(match){
+        chunk = match[1]
+        book = (argv.b||match[2])
+      }
+      var book_loc = process.cwd()+'/books/'+book;
+      return qfs.isFile(book_loc)
+        .then(function(is_file){
+          if(!is_file) throw(new Error("No such book"));
+          return qfs.read(book_loc)
+        })
+        .then(function(settings){
+          settings = JSON.parse(settings);
           var key = new Key(settings.pad.shift(), settings.config);
           process.stdout.write(key.read(chunk));
-        });
-      });
+        })
+    })
+    .catch(function(err){
+      console.log(err);
+    })
+
     break;
   case 'say':
     argv = args
@@ -108,6 +123,8 @@ switch(argv._[0]){
       .alias('b', 'book')
       .demand('book', 'you must say which book is being read from')
       .describe('b', 'the title of the book of codes. will determine where the next shared secret comes from')
+      .alias('m', 'mark')
+      .describe('m', 'announce in the message the book it applies to')
       .help('h')
       .alias('h', 'help')
       .argv;
@@ -123,7 +140,11 @@ switch(argv._[0]){
         process.stdin.setEncoding('utf8');
         process.stdin.on('data', function(chunk) {
           var key = new Key(settings.pad.shift(), settings.config);
-          process.stdout.write(key.sign(chunk));
+          contents = key.sign(chunk)
+          if(argv.m){
+            contents = contents+" --#"+argv.b;
+          }
+          process.stdout.write(contents);
         });
       });
     break;
