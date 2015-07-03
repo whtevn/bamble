@@ -54,7 +54,7 @@ switch(argv._[0]){
     if(argv.b){
       qfs.makeTree(process.cwd()+'/books/')
         .then(function(){
-          var book = fs.createWriteStream(process.cwd()+'/books/'+argv.b, {flags: 'a'});
+          var book = fs.createWriteStream(process.cwd()+'/books/'+argv.b, {flags: 'w'});
           output_pipe = book;
           deferred.resolve();
         })
@@ -84,6 +84,8 @@ switch(argv._[0]){
       .usage('Usage: cat filename | $0 say [options]')
       .example('cat filename | $0 read -b book1', 'make a message to be readable by owners of book1')
       .example('echo "cq~".;;Yc" | $0 read -b book1', 'make a message to be readable by owners of book1')
+      .alias('d', 'destructive')
+      .describe('d', 'destroy the pad entry that read this message')
       .alias('b', 'book')
       .describe('b', 'the title of the book of codes. will determine where the next shared secret comes from')
       .help('h')
@@ -116,10 +118,12 @@ switch(argv._[0]){
           return(settings)
         })
         .then(function(settings){
-          qfs.write(book_loc, JSON.stringify({
-            config: settings.config
-          , pad: settings.pad
-          }, null, "\t"));
+          if(argv.d){
+            qfs.write(book_loc, JSON.stringify({
+              config: settings.config
+            , pad: settings.pad
+            }, null, "\t"));
+          }
         })
     })
     .catch(function(err){
