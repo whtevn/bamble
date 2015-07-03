@@ -31,7 +31,8 @@ switch(argv._[0]){
       .alias('h', 'help')
       .argv;
 
-    var letters =  Letters.shuffle("\nabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890`~!@#$%^&*()-_=+[{]}\\|;:'\"/?.>,<");
+    var letters =  Letters.shuffle(" abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890`~!@#$%^&*()-_=+[{]}|;:'/?.>,<");
+    letters += "\"\\\n";
     Key.config =  {
       letters: letters
     , tail_length: argv.l
@@ -42,7 +43,7 @@ switch(argv._[0]){
     var pad = [];
     var output_pipe = process.stdout;
     for(var i=0; i<parseInt(argv.n); i++){
-      pad.push(new Key(null, config).secret);
+      pad.push(new Key(null, Key.config).secret);
     }
 
     var deferred = Q.defer();
