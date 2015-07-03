@@ -1,10 +1,46 @@
-scramble a message
+command line
+-------------
 
-clone this project
+install scrabamble globally
 
-copy the `config.json.sample` to `config.json`
+    $ sudo npm install scrabamble -g
 
-    $ var Key = require('./key')
+generate a 25 entry pad into book1
+
+    $ bamble prep -n 25 --book book1
+
+import the book1 pad
+
+    $ cat books/book1 | bamble import
+
+generate a message from that pad
+
+    $ echo 'hello world' | bamble say -b book1 > filename.bamble
+
+read a message from that pad
+
+    $ cat filename.bambled | bamble read -b book1
+
+there are more options described in the help section of the app and each of its subcommands
+
+    $ bamble -h
+
+    $ bamlble say -h 
+
+    $ bamlble read -h 
+
+and so on
+
+api
+---
+
+in broad strokes...
+
+install scrabamble locally
+
+    $ npm install scrabamble 
+
+    $ var Key = require('scrabamble/key')
 
     $ var newKey = new Key();
 
@@ -16,20 +52,4 @@ copy the `config.json.sample` to `config.json`
 
     $ key2.read(message) //=> returns 'this is a message'
 
-both users config.json files must match for messages to be transferred properly
 
--------------
-
-sudo npm install scrabamble -g
-
-generate a 25 entry pad
-
-    $ bamble generate -n 25 -t book1
-
-generate a message from that pad
-
-    $ cat filename.txt | bamble say --use book1
-
-read a message from that pad
-
-    $ cat filename.bambled.book1.msg1 | bamble read > filename.txt
