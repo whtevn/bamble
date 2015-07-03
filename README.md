@@ -21,6 +21,10 @@ read a message from that pad
 
     $ cat filename.bambled | bamble read -b book1
 
+## WARNING ##
+
+pads are ONE TIME USE ONLY and are currently deleted at the time of reading without any interraction from you, the user. Be advised
+
 there are more options described in the help section of the app and each of its subcommands
 
     $ bamble -h
