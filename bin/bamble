@@ -42,7 +42,6 @@ switch(argv._[0]){
     , tail_length: argv.t
     , letter_width: argv.z
     , relevant_character: argv.r
-    , book_name: argv.b
     };
 
     var pad = [];
@@ -71,6 +70,7 @@ switch(argv._[0]){
         {
           config: Key.config
         , pad: pad
+        , book_name: argv.b
         }
       , null, "\t"));
     })
@@ -171,7 +171,7 @@ switch(argv._[0]){
       var pad = JSON.parse(chunk);
       qfs.makeTree(process.cwd()+'/books/')
         .then(function(){
-          qfs.write(process.cwd()+'/books/'+(argv.b||pad.config.book_name), JSON.stringify(pad, null, "\t"));
+          qfs.write(process.cwd()+'/books/'+(argv.b||pad.book_name), JSON.stringify(pad, null, "\t"));
         })
     });
     break;
