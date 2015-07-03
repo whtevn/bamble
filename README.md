@@ -1,3 +1,7 @@
+bamble is an open source numbers station
+
+bamble is totally useless. this app was written for freedom, fun, and a personal challenge. 
+
 command line
 -------------
 
@@ -26,7 +30,7 @@ read a message from that pad
 each entry in the generated and imported pads is ONE TIME USE ONLY and are currently deleted at the time of using one to read a message.
 Ideally this would happen after a little prompt interface, but for now it just happens as soon as you read. Be advised. 
 
-Writing does not advance the pad, but it would need to be updated to remain in sync with the audience
+Writing does not advance the pad, so messages need to be read after writing to keep the writer's pad in sync with the audience's
 
 there are more options described in the help section of the app and each of its subcommands
 
