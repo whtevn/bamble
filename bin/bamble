@@ -10,12 +10,16 @@ var Q  = require('q');
 var args = require('yargs')
   , argv      = args.argv;
 
+process.stdin.setEncoding('utf8');
 switch(argv._[0]){
   case 'prep':
   case 'prepare':
     argv = args
       .usage('Usage: $0 prep|prepare [options]')
       .example('$0 prepare -n 100 -t book1', 'prepare a one time pad for 100 messages titled "book1"')
+      .alias('t', 'tail-length')
+      .default('t', '25')
+      .describe('t', 'fluff on the secrets in the pad')
       .alias('n', 'num')
       .default('n', '25')
       .describe('n', 'number of secrets to generate in this pad')
@@ -35,7 +39,7 @@ switch(argv._[0]){
     letters += "\"\\\n";
     Key.config =  {
       letters: letters
-    , tail_length: argv.l
+    , tail_length: argv.t
     , letter_width: argv.z
     , relevant_character: argv.r
     };
@@ -67,7 +71,7 @@ switch(argv._[0]){
           config: Key.config
         , pad: pad
         }
-      ), null, "\t");
+      , null, "\t"));
     })
     .catch(function(err){
       process.stderr.write(err);
@@ -87,7 +91,6 @@ switch(argv._[0]){
 
     
     var deferred = Q.defer();
-    process.stdin.setEncoding('utf8');
     process.stdin.on('data', function(chunk) {
       deferred.resolve(chunk)
     });
@@ -109,6 +112,13 @@ switch(argv._[0]){
           settings = JSON.parse(settings);
           var key = new Key(settings.pad.shift(), settings.config);
           process.stdout.write(key.read(chunk));
+          return(settings)
+        })
+        .then(function(settings){
+          qfs.write(book_loc, JSON.stringify({
+            config: settings.config
+          , pad: settings.pad
+          }, null, "\t"));
         })
     })
     .catch(function(err){
@@ -137,7 +147,6 @@ switch(argv._[0]){
       })
       .then(function(settings){
         settings = JSON.parse(settings);
-        process.stdin.setEncoding('utf8');
         process.stdin.on('data', function(chunk) {
           var key = new Key(settings.pad.shift(), settings.config);
           contents = key.sign(chunk)
@@ -149,10 +158,25 @@ switch(argv._[0]){
       });
     break;
   case "import":
+    argv = args
+      .usage('Usage: cat filename | $0 import [options]')
+      .example('cat filename | $0 import -b book1', 'import a file as book1')
+      .alias('b', 'book')
+      .demand('book', 'you must say which book is being read from')
+      .describe('b', 'the title of the book of codes')
+      .help('h')
+      .alias('h', 'help')
+      .argv;
+    process.stdin.on('data', function(chunk) {
+      qfs.makeTree(process.cwd()+'/books/')
+        .then(function(){
+          qfs.write(process.cwd()+'/books/'+argv.b, chunk)
+        })
+    });
     break;
   case undefined:
     argv = args
-      .usage("$0 [ prepare | say | read ] ")
+      .usage("$0 [ prepare | import | say | read ] ")
       .example("$0 <command> -h", "get help for any of the sub commands")
       .command('prepare', 'prepare a one time pad for future secure communication')
       .command('import', 'install a book prepared by someone else')
