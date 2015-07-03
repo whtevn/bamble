@@ -24,7 +24,7 @@ switch(argv._[0]){
       .default('n', '25')
       .describe('n', 'number of secrets to generate in this pad')
       .alias('b', 'book')
-      .describe('b', 'the title of the book of codes. will be used in file naming to let scrabamble know how to read messages. If no title is given, output will proceed to stdout')
+      .describe('b', 'the title of the book of codes. will be used in file naming to let bamble know how to read messages. If no title is given, output will proceed to stdout')
       .alias('z', 'noise')
       .default('z', '1')
       .describe('z', 'width of a single character. 1 is the smallest option')

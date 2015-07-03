@@ -1,9 +1,9 @@
 command line
 -------------
 
-install scrabamble globally
+install bamble globally
 
-    $ sudo npm install scrabamble -g
+    $ sudo npm install bamble -g
 
 generate a 25 entry pad into book1
 
@@ -36,11 +36,11 @@ api
 
 in broad strokes...
 
-install scrabamble locally
+install bamble locally
 
-    $ npm install scrabamble 
+    $ npm install bamble 
 
-    $ var Key = require('scrabamble/key')
+    $ var Key = require('bamble/key')
 
     $ var newKey = new Key();
 
